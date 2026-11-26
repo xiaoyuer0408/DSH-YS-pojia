@@ -207,10 +207,10 @@ Rename-Item "D:\...\resources\app.asar" app.asar.bak
 
 ```bash
 # 从 GitHub 安装
-npm install github:yushang657/DSH-YS-pojia
+npm install github:
 
 # 或克隆到 profile
-git clone https://github.com/yushang657/DSH-YS-pojia \
+git clone  \
   ~/.dsh/profiles/desktop/node_modules/ys-pojia
 ```
 

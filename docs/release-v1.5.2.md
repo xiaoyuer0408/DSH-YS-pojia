@@ -83,7 +83,7 @@ git pull
 npm run deploy
 ```
 
-或直接到 [Releases](https://github.com/yushang657/DSH-YS-pojia/releases) 下载最新包。
+或直接到 [Releases](/releases) 下载最新包。
 
 升级后需要重启 DSH —— 正文和 seed 都在插件模块里，不重启不生效。
 

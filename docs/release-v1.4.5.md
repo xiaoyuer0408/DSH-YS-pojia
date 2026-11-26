@@ -1,21 +1,21 @@
-# v1.4.5
+﻿# v1.4.5
 
-这一版解决三件「开了但查不到、用不了」的事：超频没有可观测点、模型读不到就白瞎厂商适配、主命令 `/purge` 被别家插件占着。
+这一版解决三件「开了但查不到、用不了」的事：超频没有可观测点、模型读不到就白瞎厂商适配、主命令 `/ysn` 被别家插件占着。
 
-## 一、主命令 `/purge` → `/yspojia`
+## 一、主命令 `/ysn` → `/ysn`
 
-`purge` 是通用词，别的插件也注册，宿主只认先注册的那个——所以你输入 `/purge` 看到的是别人的行为。
+`ysn` 是通用词，别的插件也注册，宿主只认先注册的那个——所以你输入 `/ysn` 看到的是别人的行为。
 
-主命令改成 `/yspojia`（别名 `/ys-pojia`），`purge` 彻底让出去。
+主命令改成 `/ysn`（别名 `/ys-pojia`），`ysn` 彻底让出去。
 
-**为什么全小写**：宿主校验是 `/^[a-z][a-z0-9_-]*$/u`，`YSpojia` 会抛 `TypeError`。而 `applyHostHooks` 把全部命令注册放在同一个 try 块里——一个名字不合法会让整个函数抛出，**后面所有命令和钩子全不注册**。这是踩过的坑，不能再犯。
+**为什么全小写**：宿主校验是 `/^[a-z][a-z0-9_-]*$/u`，`ysn` 会抛 `TypeError`。而 `applyHostHooks` 把全部命令注册放在同一个 try 块里——一个名字不合法会让整个函数抛出，**后面所有命令和钩子全不注册**。这是踩过的坑，不能再犯。
 
 所有能力收进一个入口，两种写法等价：
 
 ```
-/yspojia status / apply / revert / uninstall / edit
-/yspojia overclock / overclock text
-/yspojia rules / skills / rewind / help
+/ysn status / apply / revert / uninstall / edit
+/ysn overclock / overclock text
+/ysn rules / skills / rewind / help
 
 /rules  /skills  /overclock  /rewind      （独立命令仍保留）
 ```
@@ -117,13 +117,13 @@ session.header        → deepseek-v4.1-flash
 
 **命令分发 11 个用例**：`status`/`apply`/`revert`/`overclock`/`overclock text`/`oc`/`rules list`/`skills list`/`rewind once`/空/未知，全部正确。
 
-五条命令定义全过宿主三项校验（小写名、非空描述、非空 hint）。全仓无 `name: "purge"`，`client.js` 无 `/purge` 引用。
+五条命令定义全过宿主三项校验（小写名、非空描述、非空 hint）。全仓无 `name: "purge"`，`client.js` 无 `/ysn` 引用。
 
 ## 已知问题
 
 **全部改动未在活的会话里跑过。** 宿主进程是重启前的旧模块，上面所有验证都是模块级（直接 import 真实源码、用桩 session 复现宿主结构）。
 
-`/yspojia` 是否出现在 `/` 菜单、`/yspojia overclock` 能否在真实会话里读到模型名，都需要重启后确认。
+`/ysn` 是否出现在 `/` 菜单、`/ysn overclock` 能否在真实会话里读到模型名，都需要重启后确认。
 
 **提交粒度问题**：`317c2f2` 一个提交做了三件事（改名 + 分发器 + 回显节点适配）、跨两个文件，但标题只描述了改名。看 GitHub 提交列表时容易误以为 `client.js` 被改了两次或只改了 `client.js`。实际：
 
@@ -132,7 +132,7 @@ session.header        → deepseek-v4.1-flash
 | `lib/index.js` +134 −29 | `handleMainCommand` 分发器、`handleRewindCommand` 抽取、五条命令重定义、别名改 `ysp-*` | 主体 |
 | `client.js` +17 −3 | `PURGE_COMMAND_NAMES` 集合、回显真实命令名 | 配套，不改则 `/rules`、`/overclock` 的结果卡片不显示 |
 
-`client.js` 那 17 行是**独立且必要**的改动，不是重复：主命令改名后，回显节点原来只认 `purge`，不改就会漏掉所有新命令名。但把它们和 134 行的 `lib/index.js` 改动放进同一个提交、标题只写改名，是提交信息的问题，不是代码重复。
+`client.js` 那 17 行是**独立且必要**的改动，不是重复：主命令改名后，回显节点原来只认 `ysn`，不改就会漏掉所有新命令名。但把它们和 134 行的 `lib/index.js` 改动放进同一个提交、标题只写改名，是提交信息的问题，不是代码重复。
 
 后续提交会按「一个提交一件事」拆开。
 
@@ -142,8 +142,8 @@ session.header        → deepseek-v4.1-flash
   — `lib/engines/unlimited.js`（新增 generic 中文版、`unlimitedText` 输入归一化）、`lib/index.js`（`/overclock` 区分两种兜底原因）、两个 README
 - `97f53d6` fix: read the model from the session projection, not the request header
   — `lib/engines/unlimited.js`（`modelFromContext` 改四条路径）、`lib/index.js`（命令侧同步改路径 + 探测详情）
-- `317c2f2` fix: rename the main command from /purge to /yspojia and fold subcommands under it
-  — **不只是改名**：`lib/index.js` +134 −29 行（新增 `handleMainCommand` 分发器、把 `/rewind` 的内联逻辑抽成 `handleRewindCommand`、五个命令定义重写、别名改 `ysp-*`）、`client.js` +17 −3 行（`PURGE_COMMAND_NAMES` 让回显节点认识所有命令名，回显真实调用名而非硬编码 `/purge`）
+- `317c2f2` fix: rename the main command from /ysn to /ysn and fold subcommands under it
+  — **不只是改名**：`lib/index.js` +134 −29 行（新增 `handleMainCommand` 分发器、把 `/rewind` 的内联逻辑抽成 `handleRewindCommand`、五个命令定义重写、别名改 `ysp-*`）、`client.js` +17 −3 行（`PURGE_COMMAND_NAMES` 让回显节点认识所有命令名，回显真实调用名而非硬编码 `/ysn`）
 - `7159721` feat: report overclock state in the boost diagnostic
   — `lib/index.js`（`purge_boost` 输出追加超频段）、`lib/engines/index.js`
 - `e0fded2` feat: make it possible to tell whether overclock is actually on

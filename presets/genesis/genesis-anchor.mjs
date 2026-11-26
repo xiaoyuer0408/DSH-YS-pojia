@@ -86,7 +86,7 @@ export function probeReasoningSupport() {
   const bases = [];
   const envBase = String(process.env.DSH_AI_BASE || "").trim();
   if (envBase) bases.push(envBase);
-  // 定制版 DS-YS 的真实 aiBase（只有这个路径能通过 isAiBase 检查）
+  // 定制版 YSN 的真实 aiBase（只有这个路径能通过 isAiBase 检查）
   bases.push(path.join(path.dirname(String(process.env.DSH_HOME || "")), "..", "resources", "app", "dsh", "node_modules", "@deepseek-ai"));
 
   for (const base of bases) {

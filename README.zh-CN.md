@@ -1,9 +1,9 @@
-# ys-pojia
+﻿# ys-pojia
 
 **破甲插件（DSH 平台）** —— 让大模型按需解除拒答。
 
 [English](README.md) · **简体中文**
-> **[在线宣传页 →](https://yushang657.github.io/DSH-YS-pojia/)** · 交互式介绍、三层机制图解、三档对比、短板说明
+> **[在线宣传页 →](https://YSN.github.io/ys-pojia/)** · 交互式介绍、三层机制图解、三档对比、短板说明
 
 
 > 破甲 = prompt breach testing：系统化测出模型在哪些能力类别上会拒答、拒到什么程度。
@@ -294,7 +294,7 @@ GPT 的降级手法有三种可识别特征：先声明「我不能描写…」�
 
 当前 **v1.5.3**。完整变更记录、每版的技术细节、验证数据都在宣传页 —— 那里比 README 适合放长文。
 
-**[→ 完整变更记录](https://yushang657.github.io/DSH-YS-pojia/#changelog)**
+**[→ 完整变更记录](https://YSN.github.io/ys-pojia/#changelog)**
 
 ### 近期版本
 
@@ -304,7 +304,7 @@ GPT 的降级手法有三种可识别特征：先声明「我不能描写…」�
 | v1.5.2 | 结构升级 | 六条边界放行集、服从层、全厂商超频覆盖 |
 | v1.5.1 | 维护更新 | 常规维护 |
 | **v1.5.0** | 适配手机端 DSH Go | 加 android 面（六判据）；Android 跳过 `conversation.chat.node`；`shell.overlay` 七砍二。真机（OPPO PLQ110 + KernelSU）验证通过 |
-| **v1.4.5** | 命令改名 · 超频可查 · 兜底 | 主命令 `/purge` → `/yspojia`；`/overclock` 自检；修掉「永远读不到模型名」（改走 sessionProjections 投影） |
+| **v1.4.5** | 命令改名 · 超频可查 · 兜底 | 主命令 `/purge` → `/ysn`；`/overclock` 自检；修掉「永远读不到模型名」（改走 sessionProjections 投影） |
 | **v1.4.4** | 超频按厂商自适应 | 六组文案覆盖 29 家厂商；语言跟模型走不跟界面 locale 走 |
 | **v1.4.3** | 40 条规则写到交付深度 | 规则部分 7,279 → 51,315 字符；修掉规则裁剪完全失效的缺陷 |
 | **v1.4.2** | 取消政治禁区 | Rule #10 与其它话题同等对待；删掉 politics 判档与门禁段 |
@@ -329,7 +329,7 @@ GPT 的降级手法有三种可识别特征：先声明「我不能描写…」�
 <details>
 <summary><b>v1.4.5 详细说明</b>（命令改名与超频自检）</summary>
 
-**主命令 `/purge` → `/yspojia`**：`purge` 是通用词，别家插件也注册，宿主只认先注册的那个。必须全小写——宿主校验 `/^[a-z][a-z0-9_-]*$/u`，大写抛 `TypeError`，而所有命令注册在同一个 try 块里，一个名字不合法会让后面全部不注册。
+**主命令 `/purge` → `/ysn`**：`purge` 是通用词，别家插件也注册，宿主只认先注册的那个。必须全小写——宿主校验 `/^[a-z][a-z0-9_-]*$/u`，大写抛 `TypeError`，而所有命令注册在同一个 try 块里，一个名字不合法会让后面全部不注册。
 
 **超频可观测**：`/overclock` 看开关与模型识别、`overclock_status` 工具、`[unlimited.inject]` 日志。
 
@@ -553,8 +553,8 @@ T3 补丁档会改 DSH 的 `lib/index.js`。虽然带完整备份和回滚，但
 
 ```bash
 # Node.js >= 18 + DSH Desktop 0.2.x
-git clone https://github.com/yushang657/DSH-YS-pojia.git
-cd DSH-YS-pojia
+git clone .git
+cd ys-pojia
 npm run deploy      # 同步到所有 profile（自动先备份）
 ```
 
@@ -564,12 +564,12 @@ npm run deploy      # 同步到所有 profile（自动先备份）
 
 **本插件没有服务器，不会自动检查更新。** 也没有「检查更新」按钮——要知道有没有新版，只能去仓库看：
 
-**[github.com/yushang657/DSH-YS-pojia/releases](https://github.com/yushang657/DSH-YS-pojia/releases)**
+**[github.com//releases](/releases)**
 
 看到新版本后：
 
 ```bash
-cd DSH-YS-pojia
+cd ys-pojia
 git pull
 npm run deploy      # 自动先备份，可 npm run restore 回滚
 ```
@@ -695,7 +695,7 @@ DSH Desktop 解开 asar 后原文件仍留着：`resources/app.asar`（6.7 MB）
 
 **前后端断链**
 
-审计发现 5 个前端调用没有后端（`/dsh-purge/continue` 系列全 404），2 个后端路由前端从没调用（模式预设功能用户看不到）。补了续写设置路由，接入模式卡片，删了冗余的 `rewind/options`。
+审计发现 5 个前端调用没有后端（`/ys-pojia/continue` 系列全 404），2 个后端路由前端从没调用（模式预设功能用户看不到）。补了续写设置路由，接入模式卡片，删了冗余的 `rewind/options`。
 
 **中英切换不生效**
 

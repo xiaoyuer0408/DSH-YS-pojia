@@ -1,4 +1,4 @@
-# v1.5.0
+﻿# v1.5.0
 
 适配手机端（DSH Go / Android）。这一版解决的是「插件装上去就发不出消息」的问题。
 
@@ -54,7 +54,7 @@ if (!isAndroid && ctx.uiConversation && ...) {
 }
 ```
 
-**代价**：这个节点只负责把 `/yspojia` 调用画成一张输入卡片。关掉不影响任何破甲能力——补丁、提示词注入、工具都在宿主进程里跑，跟渲染器无关。用「一张卡片」换「能正常发消息」。
+**代价**：这个节点只负责把 `/ysn` 调用画成一张输入卡片。关掉不影响任何破甲能力——补丁、提示词注入、工具都在宿主进程里跑，跟渲染器无关。用「一张卡片」换「能正常发消息」。
 
 **为什么不在节点内部做兼容**：Go 壳的渲染器读哪些字段、什么形状，没有源码可查。靠猜去补字段风险更高——猜错还是崩，而且更难定位。
 
@@ -86,7 +86,7 @@ if (!isAndroid && ctx.uiConversation && ...) {
 └── root/.dsh/                     ← DSH home
     ├── profiles/web/node_modules/ys-pojia/   ← 插件装这里
     ├── prompt-inject.md
-    └── dsh-purge/
+    └── ys-pojia/
 ```
 
 **部署步骤**：
@@ -112,13 +112,13 @@ adb shell am start -n io.github.ccch1mneyyy.dsh_app/.LauncherMist
 
 | 检查项 | 结果 |
 |---|---|
-| `dsh-purge/installed-rev` | `apply:1.5.0` |
+| `ys-pojia/installed-rev` | `apply:1.5.0` |
 | `prompt-inject.md` | 90742 → 166509 字节，02:48 更新 |
 | `override-state.json` | `customized: false`，用内置默认 |
 | 文件数 | 147 |
 | `lib/surface.js` 里 `isAndroidSurface` | 3 处 |
 | `client.js` 里 `isAndroid` | 3 处 |
-| `lib/index.js` 里 `yspojia` | 16 处 |
+| `lib/index.js` 里 `ysn` | 16 处 |
 
 **测试结果**：手机端发消息正常，插件功能可用。
 

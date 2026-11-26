@@ -8,7 +8,7 @@ const args = process.argv.slice(2);
 
 function printStatus(state) {
   const out = [];
-  out.push("YS-pojia 状态 / Status");
+  out.push("ys-pojia 状态 / Status");
   out.push("  宿主 / surface " + (state.surface || "web"));
   out.push("  DSH_HOME      " + state.dsh_home);
   if (state.desktop_install) out.push("  桌面安装       " + state.desktop_install);
@@ -45,7 +45,7 @@ async function main() {
   const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--edit", "--help"].includes(a));
 
   if (mode === "--help" || args.includes("-h")) {
-    console.log(`YS-pojia 用法:
+    console.log(`ys-pojia 用法:
   ys-pojia --status      显示状态
   ys-pojia --apply       应用全部清洗（提示词+代码+shim+override）
   ys-pojia --revert      回滚还原

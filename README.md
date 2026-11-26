@@ -1,9 +1,9 @@
-# DSH-ys-pojia
+﻿# DSH-ys-pojia
 
 **破甲 plugin for DSH (DeepSeek Harness)** — make LLMs drop refusals on demand.
 
 **English** · [简体中文](README.zh-CN.md)
-> **[Landing page →](https://yushang657.github.io/DSH-YS-pojia/)** · interactive intro, layer diagrams, tier comparison, known weaknesses
+> **[Landing page →](https://YSN.github.io/ys-pojia/)** · interactive intro, layer diagrams, tier comparison, known weaknesses
 
 
 > 破甲 (pò jiǎ, "armor-breaking") is the Chinese term for prompt-layer breach testing: systematically finding what a model will and will not refuse, and how far it goes.
@@ -295,7 +295,7 @@ A category-blind "average 70" is a false conclusion. The same gpt-6.1-sol scores
 
 Current: **v1.5.3**. The full record - per-release technical detail and verification data - lives on the landing page, which suits long-form better than a README.
 
-**[→ Full changelog](https://yushang657.github.io/DSH-YS-pojia/#changelog)**
+**[→ Full changelog](https://YSN.github.io/ys-pojia/#changelog)**
 
 ### Recent releases
 
@@ -305,7 +305,7 @@ Current: **v1.5.3**. The full record - per-release technical detail and verifica
 | v1.5.2 | Structure | Six-boundary allow-set, obedience layer, all-vendor overclock |
 | v1.5.1 | Maintenance | Routine maintenance |
 | **v1.5.0** | Android / DSH Go support | New `android` surface (six signals); `conversation.chat.node` skipped on Android; `shell.overlay` cut from seven children to two. Verified on a real OPPO PLQ110 with KernelSU |
-| **v1.4.5** | Command renamed, overclock observable, fallback | `/purge` → `/yspojia`; `/overclock` self-check; fixed the model name never being readable (now reads the sessionProjections projection) |
+| **v1.4.5** | Command renamed, overclock observable, fallback | `/purge` → `/ysn`; `/overclock` self-check; fixed the model name never being readable (now reads the sessionProjections projection) |
 | **v1.4.4** | Overclock adapts per vendor | Six variants across 29 vendors; language follows the model, not the UI locale |
 | **v1.4.3** | All 40 rules rewritten | Rule section 7,279 → 51,315 characters; fixed a defect that made rule selection a complete no-op |
 | **v1.4.2** | Politics exclusion removed | Rule #10 treated like any other topic; the politics verdict and gate section are gone |
@@ -330,7 +330,7 @@ Full notes in [docs/mobile-android.md](docs/mobile-android.md).
 <details>
 <summary><b>v1.4.5 in detail</b> (command rename and overclock self-check)</summary>
 
-**`/purge` → `/yspojia`**: `purge` is a generic word other plugins register too, and the host keeps only the first registration. Lowercase is mandatory - the host validates `/^[a-z][a-z0-9_-]*$/u` and throws otherwise, and since every command registration sits in one try block, one invalid name aborts the rest.
+**`/purge` → `/ysn`**: `purge` is a generic word other plugins register too, and the host keeps only the first registration. Lowercase is mandatory - the host validates `/^[a-z][a-z0-9_-]*$/u` and throws otherwise, and since every command registration sits in one try block, one invalid name aborts the rest.
 
 **Overclock is observable**: `/overclock` for switch state and model detection, an `overclock_status` tool, and an `[unlimited.inject]` log line.
 
@@ -517,8 +517,8 @@ Only mutates the return value of `session.deriveMessages()` — never persists, 
 ```bash
 # Requirements: Node.js >= 18 + DSH Desktop 0.2.x
 
-git clone https://github.com/yushang657/DSH-YS-pojia.git
-cd DSH-YS-pojia
+git clone .git
+cd ys-pojia
 npm run deploy      # sync into every profile's node_modules (auto-backs up first)
 ```
 
@@ -532,12 +532,12 @@ Restart DSH to take effect (ESM modules are cached).
 updates" button either - the only way to see whether a new version exists is the
 repository:
 
-**[github.com/yushang657/DSH-YS-pojia/releases](https://github.com/yushang657/DSH-YS-pojia/releases)**
+**[github.com//releases](/releases)**
 
 When a new version is out:
 
 ```bash
-cd DSH-YS-pojia
+cd ys-pojia
 git pull
 npm run deploy      # backs up first; npm run restore rolls back
 ```

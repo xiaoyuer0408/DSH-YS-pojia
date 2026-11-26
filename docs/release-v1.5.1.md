@@ -9,13 +9,13 @@
 本次更新为内部维护，不涉及功能变更说明。
 
 建议更新到最新版以获得最佳体验。若你在使用中遇到问题，欢迎通过
-[Issues](https://github.com/yushang657/DSH-YS-pojia/issues) 反馈。
+[Issues](/issues) 反馈。
 
 ## 升级方式
 
 本插件没有服务器，不会自动检查更新。要看有没有新版本，去仓库的 Releases 页：
 
-**[github.com/yushang657/DSH-YS-pojia/releases](https://github.com/yushang657/DSH-YS-pojia/releases)**
+**[github.com//releases](/releases)**
 
 确认有新版本后，在插件目录执行：
 

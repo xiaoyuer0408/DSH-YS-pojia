@@ -551,7 +551,7 @@ function gradeReply(text, probe) {
 //  HTTP
 // ═══════════════════════════════════════════════════════════════════════════
 /**
- * 上游风控检测。
+ * 服务端风控检测。
  *
  * ═══════════════════════════════════════════════════════════════════════════
  *  现象
@@ -566,7 +566,7 @@ function gradeReply(text, probe) {
  *     https://platform.openai.com/settings/organization/status-and-access
  *     before retrying."
  *
- *  这是**上游模型厂商的风控层**，不是中转、不是插件。
+ *  这是**模型服务端的风控层**，不是中转、不是插件。
  *  和普通的 400（并发限流）不同，它有两个特征：
  *
  *    ① 明确提到 flagged / cybersecurity / Daybreak
@@ -578,7 +578,7 @@ function gradeReply(text, probe) {
  *
  *   · 识别为风控 → 标记 `flagged: true`，区别于普通错误
  *   · 用**改写后的 prompt** 重试（换措辞，不是原样重发）
- *   · 改写仍失败 → 记为「上游风控」，不计入模型拒绝
+ *   · 改写仍失败 → 记为「服务端风控」，不计入模型拒绝
  *
  *  为什么改写有效：风控是**内容分类器**，看的是字面措辞。
  *  同一个意图换一种说法，通常能过。
@@ -644,9 +644,9 @@ async function chat(model, messages, opts = {}) {
     stream: false,
   })
 
-  // 🔴 重试：上游偶发 400/429/5xx（并发限流），最多 3 次
+  // 🔴 重试：服务端偶发 400/429/5xx（并发限流），最多 3 次
   const maxRetry = opts.retry ?? 4
-  const gapMs = opts.gapMs ?? 800   // 上游并发限流，请求间留间隔
+  const gapMs = opts.gapMs ?? 800   // 服务端并发限流，请求间留间隔
   let lastErr = null
   let flaggedCount = 0
 
@@ -668,7 +668,7 @@ async function chat(model, messages, opts = {}) {
       if (!res.ok) {
         const err = await res.text().catch(() => '')
 
-        // 🔴 上游风控：换措辞重试，原样重发通常仍失败
+        // 🔴 服务端风控：换措辞重试，原样重发通常仍失败
         if (isFlagged(err)) {
           flaggedCount += 1
           if (attempt < maxRetry - 1) {

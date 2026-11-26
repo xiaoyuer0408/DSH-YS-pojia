@@ -14,7 +14,7 @@ if (!token || !desc) {
 
 const payload = JSON.stringify({ description: desc });
 
-const res = await fetch("https://api.github.com/repos/yushang657/DSH-YS-pojia", {
+const res = await fetch("https://api.github.com/repos/", {
   method: "PATCH",
   headers: {
     Authorization: "Bearer " + token,

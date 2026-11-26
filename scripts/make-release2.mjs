@@ -19,7 +19,7 @@ const payload = JSON.stringify({
   prerelease: false,
 });
 
-const res = await fetch("https://api.github.com/repos/yushang657/DSH-YS-pojia/releases", {
+const res = await fetch("https://api.github.com/repos//releases", {
   method: "POST",
   headers: {
     Authorization: "Bearer " + token,

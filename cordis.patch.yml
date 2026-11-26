@@ -1,4 +1,4 @@
-# YS pojia / ys-pojia bundle patch（DS-YS 定制版内建层）
+# YSN / ys-pojia bundle patch（YSN 定制版内建层）
 #
 # 与宿主 profile 版本的区别：这是随安装包分发的 bundle 层，profile 里不再需要
 # postinstall 去补 insert。所以本体插入写在这里，而不是留给 profile 的

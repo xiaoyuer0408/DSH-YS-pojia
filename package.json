@@ -90,12 +90,5 @@
     "0.2.2-rc.5"
   ],
   "displayName": "YS-pojia",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yushang657/DSH-YS-pojia.git"
-  },
-  "homepage": "https://github.com/yushang657/DSH-YS-pojia",
-  "bugs": {
-    "url": "https://github.com/yushang657/DSH-YS-pojia/issues"
-  }
+  "author": "YS-pojia"
 }

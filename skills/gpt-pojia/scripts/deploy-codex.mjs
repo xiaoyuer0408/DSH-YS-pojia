@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// deploy-codex.mjs —— GPT 破甲载荷的 Codex 部署器
+// deploy-codex.mjs —— ys-pojia 破甲载荷的 Codex 部署器
 //
 // 做四件事，每一步都可回滚：
 //   1. 把选定的载荷 md 写进 CODEX_HOME
 //   2. 把 config.toml 顶层 model_instructions_file 指向它
-//   3. 把改动前的原始行记进 .gpt56-sol-instruct-state.json (version 2)
-//   4. 备份 config.toml 到 config.toml.gpt56-sol-instruct.bak（已存在则不覆盖）
+//   3. 把改动前的原始行记进 .ys-pojia-instruct-state.json (version 2)
+//   4. 备份 config.toml 到 config.toml.ys-pojia-instruct.bak（已存在则不覆盖）
 //
 // 用法：
 //   node scripts/deploy-codex.mjs status
@@ -24,9 +24,9 @@ import { fileURLToPath } from "node:url";
 const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const REFERENCES_DIR = path.join(PROJECT_ROOT, "references");
 
-const STATE_FILENAME = ".gpt56-sol-instruct-state.json";
+const STATE_FILENAME = ".ys-pojia-instruct-state.json";
 const STATE_VERSION = 2;
-const BASELINE_BACKUP_SUFFIX = ".gpt56-sol-instruct.bak";
+const BASELINE_BACKUP_SUFFIX = ".ys-pojia-instruct.bak";
 
 // version key -> { label, md, source }
 const PROMPT_VERSIONS = {

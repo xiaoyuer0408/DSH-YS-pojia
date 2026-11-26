@@ -18,7 +18,7 @@
 
 ### 原因一：标记没改全
 
-之前那次改名只走了 `app.asar.unpacked` 那棵树，**`app` 树整片漏了** —— 42 个文件里 83 处还是 `[dsh-purge]`。另外 `app/lib/main.js`（833 KB，desktop-shell 补丁的目标）不在扫描路径里，另有 6 处。
+之前那次改名只走了 `app.asar.unpacked` 那棵树，**`app` 树整片漏了** —— 42 个文件里 83 处还是 `[ys-pojia]`。另外 `app/lib/main.js`（833 KB，desktop-shell 补丁的目标）不在扫描路径里，另有 6 处。
 
 插件已不认旧前缀，于是所有带标记的补丁都被判成漂移。改完 **43 → 77**。
 
@@ -42,9 +42,9 @@
 
 `LEGACY_DATA_DIR_NAME` 在更早的批量改名里被误改成了 `"ys-pojia"`，跟 `DATA_DIR_NAME` 一模一样。
 
-结果迁移逻辑变成「从自己复制到自己」，老用户 `dsh-purge` 目录里的数据 —— 授权状态、改过的规则集、技能清单 —— 从来没有被迁过来。表现是升级后「设置全没了」。
+结果迁移逻辑变成「从自己复制到自己」，老用户 `ys-pojia` 目录里的数据 —— 授权状态、改过的规则集、技能清单 —— 从来没有被迁过来。表现是升级后「设置全没了」。
 
-已改回 `"dsh-purge"`。
+已改回 `"ys-pojia"`。
 
 ## 四、装载到 0.2.2
 
@@ -85,7 +85,7 @@ git pull
 npm run deploy
 ```
 
-或到 [Releases](https://github.com/yushang657/DSH-YS-pojia/releases) 下载最新包。
+或到 [Releases](/releases) 下载最新包。
 
 升级后需要重启 DSH。
 

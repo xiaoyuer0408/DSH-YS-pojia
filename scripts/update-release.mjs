@@ -16,7 +16,7 @@ const body = readFileSync(notesFile, "utf8");
 const payload = JSON.stringify({ body });
 
 const res = await fetch(
-  "https://api.github.com/repos/yushang657/DSH-YS-pojia/releases/" + releaseId,
+  "https://api.github.com/repos//releases/" + releaseId,
   {
     method: "PATCH",
     headers: {
