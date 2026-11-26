@@ -42,7 +42,7 @@ function printStatus(state) {
 }
 
 async function main() {
-  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--edit", "--help", "--update"].includes(a));
+  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--edit", "--help"].includes(a));
 
   if (mode === "--help" || args.includes("-h")) {
     console.log(`YS-pojia 用法:
@@ -52,55 +52,6 @@ async function main() {
   ys-pojia --uninstall   卸载插件（已应用则先还原）
   ys-pojia --edit        编辑注入文件 prompt-inject.md
   ys-pojia --help        帮助`);
-    return;
-  }
-
-  /* --update 独立处理：不走 status 输出，直接查版本然后结束 */
-  if (mode === "--update") {
-    const uc = await import("../lib/update-check.js");
-    const { localVersion } = await import("../lib/update.js");
-    const force = args.includes("--force") || args.includes("-f");
-    const current = localVersion();
-
-    if (!force) {
-      const c = uc.readCache();
-      if (c && c.latest && c.checkedAt) {
-        const ageMin = Math.round((Date.now() - new Date(c.checkedAt).getTime()) / 60000);
-        const newer = uc.compareVersion(c.latest, current) > 0;
-        console.log("");
-        console.log("  当前版本  " + current);
-        console.log("  最新版本  " + c.latest + (newer ? "  ← 有新版" : "  （已是最新）"));
-        console.log("  检查于    " + ageMin + " 分钟前（缓存）");
-        console.log("");
-        console.log("  强制重查：node bin/ys-pojia.js --update --force");
-        return;
-      }
-    }
-
-    console.log("");
-    console.log("  正在查 GitHub Releases...");
-    const r = await uc.checkUpdate({ current, force: true });
-    if (!r.ok) {
-      console.log("");
-      console.log("  检查失败：" + (r.reason || "未知原因"));
-      console.log("");
-      console.log("  手动查看：https://github.com/yushang657/DSH-YS-pojia/releases");
-      process.exitCode = 1;
-      return;
-    }
-    console.log("");
-    console.log("  当前版本  " + current);
-    console.log("  最新版本  " + r.latest + (r.hasUpdate ? "  ← 有新版" : "  （已是最新）"));
-    if (r.name) console.log("  版本名    " + r.name);
-    if (r.publishedAt) console.log("  发布于    " + String(r.publishedAt).slice(0, 10));
-    if (r.hasUpdate) {
-      console.log("");
-      console.log("  升级方式：重新下载解压后双击 install.bat，或");
-      console.log("    npx github:yushang657/DSH-YS-pojia install");
-      console.log("");
-      console.log("  更新说明：" + r.url);
-    }
-    console.log("");
     return;
   }
 

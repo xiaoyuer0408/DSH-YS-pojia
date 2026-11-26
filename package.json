@@ -1,6 +1,6 @@
 {
   "name": "ys-pojia",
-  "version": "1.5.4",
+  "version": "1.5.3",
   "description": "DSH 破甲 解限 越狱 清理 红队 逆向 | DSH (DeepSeek Harness) breach / jailbreak / unlock plugin: 96 host patches across 70 files, refusal purge, 11 prompt sections, tiers T3-T1, 40 rules at delivery depth, vendor-aware overclock with generic fallback, Android / DSH Go support, no topic exclusion, ASR 46.2%, 95 templates / 29 vendors.",
   "type": "module",
   "main": "lib/index.js",
@@ -16,8 +16,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "ys-pojia": "bin/ys-pojia.js",
-    "ys-pojia-install": "bin/install.js"
+    "ys-pojia": "bin/ys-pojia.js"
   },
   "files": [
     "lib",
@@ -30,9 +29,8 @@
     "client.js",
     "cordis.patch.yml",
     "README.md",
-    "README.en.md",
-    "LICENSE",
-    "version-manifest.json"
+    "README.zh-CN.md",
+    "LICENSE"
   ],
   "scripts": {
     "embed-prompt": "node scripts/embed-default-prompt.mjs",
@@ -42,10 +40,7 @@
     "backup": "node scripts/deploy.mjs backup",
     "restore": "node scripts/deploy.mjs restore",
     "status": "node scripts/deploy.mjs status",
-    "armor": "node scripts/embed-default-prompt.mjs && node scripts/ensure-profile-bundle.mjs",
-    "install": "node bin/install.js",
-    "install:dry": "node bin/install.js --dry-run",
-    "gen:manifest": "node scripts/gen-manifest.mjs"
+    "armor": "node scripts/embed-default-prompt.mjs && node scripts/ensure-profile-bundle.mjs"
   },
   "license": "Apache-2.0",
   "keywords": [

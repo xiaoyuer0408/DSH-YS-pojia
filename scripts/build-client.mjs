@@ -29,18 +29,6 @@ body = body
 	.replace(/\n\s*exports\.apply\s*=\s*apply\s*\n/, "\n")
 	.replace(/\n\s*exports\.inject\s*=\s*inject\s*\n/, "\n");
 
-/* 剥掉 body 自带的 module / exports 声明。
- * fragment 模板已经声明过，body 里再来一份会让 exports 与 module.exports 脱钩，
- * 模块导出变空对象，前端入口不出现。 */
-body = body
-	.replace(/^[ \t]*var module = \{ exports: \{\} \}\s*;?\s*\r?\n/m, "")
-	.replace(/^[ \t]*var exports = module\.exports\s*;?\s*\r?\n/m, "")
-	.replace(/^[ \t]*Object\.defineProperty\(exports, Symbol\.toStringTag[^\n]*\n/m, "");
-
-if (/var module = \{ exports:/.test(body)) {
-	throw new Error("drill body still declares module after stripping; check lib/hacker/client.js");
-}
-
 // 替换 apply(ctx)：不再自己注册槽位，只导出 Panel / CSS / 状态
 const applyAt = body.lastIndexOf("function apply(ctx) {");
 if (applyAt < 0) throw new Error("apply(ctx) not found in drill client");

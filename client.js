@@ -9,7 +9,6 @@ window.__ModuleLoader__.load({ id: "ys-pojia", factory: (require) => {
 
 /* 仓库地址。求 star 和「更新去仓库看」都指向这里。 */
 const REPO_URL = "https://github.com/yushang657/DSH-YS-pojia";
-const RELEASES_URL = REPO_URL.replace(/\/?$/, "") + "/releases";
 
 /*
  * 打开一个外部链接。
@@ -107,7 +106,7 @@ function readStoredLang() {
 function storeLang(lang) {
   try { window.localStorage.setItem(LANG_KEY, lang === "zh" ? "zh" : "en"); } catch { /* ignore */ }
 }
-/* 启动时先套用用户存过的选择；没有就探测系统语言，探不出来默认中文。 */
+/* 启动时先套用用户存过的选择；没有就保持默认 en。 */
 /**
  * 探测用户默认语言。
  *
@@ -116,35 +115,37 @@ function storeLang(lang) {
  *   2. navigator.language      —— 老浏览器只有这个
  *   3. Intl.DateTimeFormat().resolvedOptions().locale —— 前面都拿不到时的兜底
  *
- * 只认 zh 前缀为中文；三级都拿不到、或都不是中文时，兜底返回中文。
- * 本插件的用户绝大多数是中文用户：界面、文档、群组都是中文。英文用户想切换，
- * 面板右上角有语言按钮，选过一次就记住。早先这里 return "en"，导致首次加载的
- * 须知弹窗和整个面板都是英文，用户得先找到切换按钮才能看懂。
+ * 只认 zh 前缀为中文，其余一律英文。这样 zh-CN / zh-TW / zh-Hant 都算中文，
+ * 而 ja / ko / de 之类走英文 —— 插件只有中英两套字典，日韩用户看英文比看中文有用。
  */
 function detectSystemLang() {
-  const isZh = (v) => String(v || "").trim().toLowerCase().startsWith("zh");
-
+  const probe = (v) => {
+    const s = String(v || "").trim().toLowerCase();
+    if (!s) return "";
+    return s.startsWith("zh") ? "zh" : "en";
+  };
   try {
     const langs = navigator.languages;
     if (Array.isArray(langs)) {
       for (const l of langs) {
-        if (isZh(l)) return "zh";
+        const hit = probe(l);
+        if (hit) return hit;
       }
     }
   } catch { /* navigator 不可用 */ }
   try {
-    if (isZh(navigator.language)) return "zh";
+    const hit = probe(navigator.language);
+    if (hit) return hit;
   } catch { /* ignore */ }
   try {
-    if (isZh(Intl.DateTimeFormat().resolvedOptions().locale)) return "zh";
+    const hit = probe(Intl.DateTimeFormat().resolvedOptions().locale);
+    if (hit) return hit;
   } catch { /* ignore */ }
-
-  /* 兜底：中文 */
-  return "zh";
+  return "en";
 }
 
 /*
- * 启动时定语言：用户存过就用存的，没存过就探测系统语言，探不出来默认中文。
+ * 启动时定语言：用户存过就用存的，没存过就跟系统语言。
  *
  * 首次加载的须知弹窗也走这条路径 —— 中文系统的用户第一次打开看到的就是中文，
  * 不用先去点切换按钮。
@@ -651,7 +652,7 @@ function useT() {
 			"repo.title": "YS-pojia",
 			"repo.sub": "开源在 GitHub",
 			"repo.ask": "这个插件免费开源，全靠业余时间做。如果它帮到你了，去仓库点个 Star —— 那是对作者最直接的鼓励，也让更多人能搜到它。",
-			"update.title":"版本更新","update.check":"检查更新","update.checking":"正在检查…","update.latest":"已是最新（{v}）","update.available":"有新版本 {v}","update.fail":"检查失败：{reason}","update.cached":"{min} 分钟前检查","update.hint":"从 GitHub Releases 读版本号，不需要服务器。24 小时缓存，只在你点按钮时联网。","update.goto":"查看更新说明","update.auto":"允许自动检查（24 小时一次）","repo.note": "本插件不需要自建服务器。版本检测走 GitHub Releases：默认不联网，你点「检查更新」时才请求一次，结果缓存 24 小时。",
+			"repo.note": "本插件没有服务器：不联网、不上传数据、不自动检查更新。想看新版本或更新日志，去仓库的 Releases 页。",
 			"repo.fbTitle": "有想法？去仓库提",
 			"repo.fbBody": "需要新功能、想改现有行为、觉得哪里能用得更顺，都可以去 GitHub 开一个 Issue 说。作者会看，合理的会采纳 —— 不保证每条都做，但每一条都会读。遇到 Bug 也走同一个入口，附上宿主版本、报错原文和复现步骤，定位会快很多。",
 			"repo.btnIssue": "提 Issue / 报 Bug",
@@ -707,8 +708,30 @@ function useT() {
 			"channel.stable": "正式版",
 			"channel.useStable": "切换到正式版",
 			"channel.local": "本机",
+			"update.checking": "正在检测更新…",
+			"update.applying": "正在更新…",
+			"update.switching": "正在切换版本…",
+			"update.latest": "已是最新（{version}）",
+			"update.available": "有新版本 {remote}，当前 {local}",
+			"update.pinned": "已固定在 {version}，通道最新是 {remote}",
+			"update.done": "已更新到 {version}",
+			"update.restarting": "已还原并写入新补丁，正在重启…",
+			"update.fullQuit": "补丁已写入。点「重启」后客户端会自己重新打开。",
 			"restart.official.title": "需要重启",
 			"restart.official.body": "补丁已写入。点重启后客户端会自己重新打开。",
+			"update.switched": "已切换到 {version}",
+			"update.autoDone": "已自动更新到 {version}",
+			"update.reloading": "正在刷新设置页…",
+			"update.dirty": "有新版本，本地有改动未自动覆盖",
+			"update.fail": "更新失败: {error}",
+			"update.timeout": "检测超时，请再点一次检测更新",
+			"update.needRestart": "检测接口未加载，请先重启 dsh 再点检测更新",
+			"update.switch": "切换到此版本",
+			"update.pick": "选择版本",
+			"update.tip": "最新",
+			"update.current": "当前",
+			"update.confirmSwitch": "切换到 {version}？之后可再切回另一通道或其它版本。本地未提交的插件改动不会保留。",
+			"update.confirmChannel": "切换到{version}？会按该通道重新安装插件，本地未提交的插件改动不会保留。",
 			"metric.version": "版本",
 			"action.apply": "应用",
 			"action.revert": "还原",
@@ -919,7 +942,7 @@ function useT() {
 			"continue.ready": "继续（还可 {left} 次）",
 			"continue.limit": "已达继续上限",
 			"continue.fail": "继续失败: {error}",
-  "view.update":"更新","upd.popTitle":"发现新版本","upd.popBody":"仓库里有 v{v}，当前是 v{cur}。","upd.popNow":"立即更新","upd.popLater":"下次再说","upd.popNever":"不接收更新提示","upd.popNote":"「不接收」只关掉弹窗。更新页的检查和更新按钮照常可用，随时能在那里改回来。","upd.prefTitle":"弹窗提示","upd.prefOn":"有新版本时弹窗提醒","upd.prefOff":"不弹窗（只在更新页显示）","upd.prefHint":"关掉弹窗不影响检测和更新。想恢复随时打开。","upd.prefSaved":"已保存","upd.title":"版本更新","upd.desc":"检查有没有新版本。有的话可以只更新变化的文件，不用重装整个插件。","upd.check":"检查更新","upd.checking":"检查中…","upd.current":"当前版本","upd.remote":"仓库版本","upd.latest":"已是最新","upd.hasUpdate":"有新版本 {v}","upd.checkFail":"检查失败：{reason}","upd.manualHint":"如果一直连不上，可以直接去仓库下载最新版覆盖，或用一键安装重跑一遍。","upd.goto":"去仓库","upd.filesTitle":"文件差异","upd.filesSummary":"共 {total} 个文件，{changed} 个需要更新","upd.added":"新增","upd.changed":"变更","upd.removed":"远程已删除（不会自动删本地）","upd.unchanged":"未变","upd.apply":"更新这 {n} 个文件","upd.applying":"更新中…","upd.applyOk":"已更新 {n} 个文件","upd.applyFail":"更新失败：{reason}","upd.needRestart":"改了代码文件，重启 DSH 生效","upd.noChange":"没有需要更新的文件","upd.backup":"原文件已备份到 {dir}","upd.noFiles":"还没检查，点上面的「检查更新」","upd.danger":"文件更新只覆盖代码，不动你的配置和注入正文。升级前会自动备份。","view.overview": "概览",
+  "view.overview": "概览",
   "view.patches": "补丁清单",
   "view.inject": "注入词",
   "unit.items": " 条",
@@ -1259,7 +1282,7 @@ function useT() {
 			"repo.title": "YS-pojia",
 			"repo.sub": "Open source on GitHub",
 			"repo.ask": "This plugin is free and open source, built in spare time. If it helped you, leave a Star on the repo — it is the most direct encouragement for the author and helps others find it.",
-			"update.title":"Updates","update.check":"Check for updates","update.checking":"Checking…","update.latest":"Up to date ({v})","update.available":"Update available: {v}","update.fail":"Check failed: {reason}","update.cached":"checked {min} min ago","update.hint":"Reads the version from GitHub Releases - no server needed. Cached 24 hours, only goes online when you click.","update.goto":"Release notes","update.auto":"Allow automatic checks (once per 24h)","repo.note": "No server of our own. Version checks go through GitHub Releases: offline by default, one request when you click Check, cached for 24 hours.",
+			"repo.note": "No server behind this plugin: it does not phone home, upload data, or auto-check for updates. For new versions and changelogs, see the Releases page on the repo.",
 			"repo.fbTitle": "Got an idea? Open an issue",
 			"repo.fbBody": "New features, changes to existing behaviour, or anything that could flow better — open an issue on GitHub and say so. The author reads them and adopts the reasonable ones. Not every request gets built, but every one gets read. Bugs go through the same door: include the host version, the exact error text and the steps to reproduce, and it gets located much faster.",
 			"repo.btnIssue": "Open an issue / report a bug",
@@ -1315,8 +1338,30 @@ function useT() {
 			"channel.stable": "Stable",
 			"channel.useStable": "Switch to stable",
 			"channel.local": "This copy",
+			"update.checking": "Checking for updates…",
+			"update.applying": "Updating…",
+			"update.switching": "Switching version…",
+			"update.latest": "Up to date ({version})",
+			"update.available": "Update {remote} available (now {local})",
+			"update.pinned": "Pinned at {version}; channel latest is {remote}",
+			"update.done": "Updated to {version}.",
+			"update.restarting": "Restored the old patches, wrote the new ones, and restarting…",
+			"update.fullQuit": "Patches are written. Click Restart and the client opens again by itself.",
 			"restart.official.title": "Restart required",
 			"restart.official.body": "Patches are written. Click Restart and the client opens again by itself.",
+			"update.switched": "Switched to {version}.",
+			"update.autoDone": "Auto-updated to {version}.",
+			"update.reloading": "Refreshing settings…",
+			"update.dirty": "Update available; local edits were not overwritten.",
+			"update.fail": "Update failed: {error}",
+			"update.timeout": "Check timed out. Click Check update again.",
+			"update.needRestart": "Update API is not loaded. Restart dsh, then check again.",
+			"update.switch": "Switch to this version",
+			"update.pick": "Select version",
+			"update.tip": "latest",
+			"update.current": "current",
+			"update.confirmSwitch": "Switch to {version}? You can switch back later. Uncommitted plugin edits will not be kept.",
+			"update.confirmChannel": "Switch to {version}? The plugin will be reinstalled from that channel. Uncommitted plugin edits will not be kept.",
 			"metric.version": "Version",
 			"action.apply": "Apply",
 			"action.revert": "Restore",
@@ -1527,7 +1572,7 @@ function useT() {
 			"continue.ready": "Continue ({left} left)",
 			"continue.limit": "Continue limit reached",
 			"continue.fail": "Continue failed: {error}",
-  "view.update":"Updates","upd.popTitle":"New version available","upd.popBody":"The repo has v{v}; you are on v{cur}.","upd.popNow":"Update now","upd.popLater":"Later","upd.popNever":"Do not notify me","upd.popNote":"\"Do not notify\" only disables the popup. The check and update buttons on the Updates page keep working, and you can turn it back on there.","upd.prefTitle":"Popup notification","upd.prefOn":"Show a popup when a new version exists","upd.prefOff":"No popup (Updates page only)","upd.prefHint":"Turning the popup off does not affect checking or updating. Re-enable it any time.","upd.prefSaved":"Saved","upd.title":"Version update","upd.desc":"Check for a newer version. If there is one, only the changed files get replaced - no full reinstall.","upd.check":"Check for updates","upd.checking":"Checking…","upd.current":"Current","upd.remote":"Remote","upd.latest":"Up to date","upd.hasUpdate":"Update available: {v}","upd.checkFail":"Check failed: {reason}","upd.manualHint":"If it keeps failing, download the latest release and overwrite, or run the one-line installer again.","upd.goto":"Open repo","upd.filesTitle":"File differences","upd.filesSummary":"{total} files total, {changed} need updating","upd.added":"Added","upd.changed":"Changed","upd.removed":"Gone upstream (not deleted locally)","upd.unchanged":"Unchanged","upd.apply":"Update {n} files","upd.applying":"Updating…","upd.applyOk":"Updated {n} files","upd.applyFail":"Update failed: {reason}","upd.needRestart":"Code files changed - restart DSH","upd.noChange":"Nothing to update","upd.backup":"Originals backed up to {dir}","upd.noFiles":"Not checked yet - click Check for updates","upd.danger":"A file update only replaces code. Your config and injection body stay untouched. Originals are backed up first.","view.overview": "Overview",
+  "view.overview": "Overview",
   "view.patches": "Patches",
   "view.inject": "Inject",
   "unit.items": " items",
@@ -2684,53 +2729,6 @@ body[data-ds-dark-theme] .rt-rep-step-no,.dshp-dock[data-theme="dusk"] .rt-rep-s
 @media (prefers-reduced-motion:reduce){.dshp-auth-count::before{animation:none;opacity:.7}}
 .dshp-auth-ops .primary[disabled]{cursor:not-allowed}
 
-/* ══ 更新页：弹窗设置 ══ */
-.dshp-upd-pref{padding:12px 16px;border:1px solid var(--dshp-line);border-radius:10px;background:var(--dshp-panel2)}
-.dshp-upd-pref-title{display:block;margin-bottom:10px;font:600 12.5px/1.5 var(--dshp-sans);color:var(--dshp-ink)}
-.dshp-upd-pref-opts{display:flex;flex-direction:column;gap:8px}
-.dshp-upd-radio{display:flex;align-items:center;gap:8px;cursor:pointer;font:400 12.5px/1.5 var(--dshp-sans);color:var(--dshp-mute)}
-.dshp-upd-radio input{cursor:pointer;accent-color:var(--dshp-accent)}
-.dshp-upd-radio:hover{color:var(--dshp-ink)}
-.dshp-upd-saved{display:inline-block;margin-top:8px;font:500 11.5px/1.5 var(--dshp-sans);color:var(--dshp-accent)}
-/* ══ 新版本弹窗 ══ */
-.dshp-upd-modal{width:min(440px,100%)}
-.dshp-upd-popbody{margin:0 0 10px;font:400 13px/1.7 var(--dshp-sans);color:var(--dshp-ink)}
-.dshp-upd-pophint{margin:0;font:400 11.5px/1.65 var(--dshp-sans);color:var(--dshp-faint)}
-.dshp-upd-popops{flex-wrap:wrap}
-.dshp-upd-never{opacity:.75}
-.dshp-upd-never:hover{opacity:1}
-
-/* ══ 更新页 ══ */
-.dshp-updpage{display:flex;flex-direction:column;gap:14px}
-.dshp-upd-ver{padding:14px 16px;border:1px solid var(--dshp-line);border-radius:10px;background:var(--dshp-panel2)}
-.dshp-upd-vrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
-.dshp-upd-vlabel{font:500 12px/1.4 var(--dshp-sans);color:var(--dshp-mute)}
-.dshp-upd-vnum{font:600 14px/1.4 var(--dshp-mono);color:var(--dshp-ink);padding:2px 8px;border-radius:5px;background:var(--dshp-panel)}
-.dshp-upd-vnum.is-new{color:var(--dshp-accent);background:var(--dshp-accent-soft)}
-.dshp-upd-varrow{color:var(--dshp-faint);font-size:13px}
-.dshp-upd-desc{margin:0 0 12px;font:400 12.5px/1.65 var(--dshp-sans);color:var(--dshp-mute)}
-.dshp-upd-ops{display:flex;flex-wrap:wrap;gap:8px}
-.dshp-upd-err{padding:12px 14px;border:1px solid var(--dshp-line);border-left:3px solid var(--dshp-danger);border-radius:0 8px 8px 0;background:var(--dshp-panel2)}
-.dshp-upd-err b{display:block;margin-bottom:6px;font:600 12.5px/1.5 var(--dshp-sans);color:var(--dshp-danger)}
-.dshp-upd-err p{margin:0 0 6px;font:400 12px/1.7 var(--dshp-sans);color:var(--dshp-mute);word-break:break-word}
-.dshp-upd-hintline{margin:10px 0 0;font:400 11.5px/1.65 var(--dshp-sans);color:var(--dshp-faint)}
-.dshp-upd-files{padding:14px 16px;border:1px solid var(--dshp-line);border-radius:10px;background:var(--dshp-panel2)}
-.dshp-upd-fhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:12px}
-.dshp-upd-fhead b{font:600 13px/1.5 var(--dshp-sans);color:var(--dshp-ink)}
-.dshp-upd-fhead span{font:400 12px/1.5 var(--dshp-sans);color:var(--dshp-mute)}
-.dshp-upd-group{margin-bottom:12px}
-.dshp-upd-gtag{display:inline-block;margin-bottom:6px;font:600 11px/1.4 var(--dshp-mono);font-style:normal;letter-spacing:.03em;padding:1px 7px;border-radius:4px}
-.dshp-upd-gtag.is-add{color:#16a34a;background:rgba(22,163,74,.12)}
-.dshp-upd-gtag.is-mod{color:var(--dshp-warn);background:rgba(224,165,59,.12)}
-.dshp-upd-gtag.is-del{color:var(--dshp-faint);background:var(--dshp-panel)}
-.dshp-upd-f{display:block;font:400 11.5px/1.9 var(--dshp-mono);color:var(--dshp-mute);word-break:break-all}
-.dshp-upd-f.is-ok{color:#16a34a}
-.dshp-upd-ok{margin:10px 0 0;font:400 12.5px/1.6 var(--dshp-sans);color:var(--dshp-accent)}
-.dshp-upd-apply{margin-top:12px}
-.dshp-upd-done{padding:14px 16px;border:1px solid var(--dshp-line);border-left:3px solid var(--dshp-accent);border-radius:0 8px 8px 0;background:var(--dshp-panel2)}
-.dshp-upd-done b{display:block;margin-bottom:8px;font:600 13px/1.5 var(--dshp-sans);color:var(--dshp-accent)}
-.dshp-upd-restart{margin:0 0 6px;font:500 12px/1.6 var(--dshp-sans);color:var(--dshp-warn)}
-
 /* ══ 概览页：仓库卡片 ══ */
 .dshp-repo{margin:14px 0 0;padding:14px 16px;border:1px solid var(--dshp-line);border-radius:var(--dshp-r,10px);background:var(--dshp-card)}
 .dshp-repo-head{display:flex;align-items:center;gap:10px;margin:0 0 10px}
@@ -2739,13 +2737,6 @@ body[data-ds-dark-theme] .rt-rep-step-no,.dshp-dock[data-theme="dusk"] .rt-rep-s
 .dshp-repo-title b{font:600 14px/18px var(--dshp-sans);color:var(--dshp-ink)}
 .dshp-repo-title em{font:500 11px/14px var(--dshp-mono);font-style:normal;letter-spacing:.04em;color:var(--dshp-faint)}
 .dshp-repo-ask{margin:0 0 8px;font:400 12.5px/1.65 var(--dshp-sans);color:var(--dshp-ink)}
-.dshp-upd{margin:0 0 12px;padding:10px 12px;border:1px solid var(--dshp-line);border-radius:8px;background:var(--dshp-panel2)}
-.dshp-upd-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.dshp-upd-label{font:600 12.5px/1.5 var(--dshp-sans);color:var(--dshp-ink)}
-.dshp-upd-state{font:400 12px/1.5 var(--dshp-mono);color:var(--dshp-mute);flex:1;min-width:120px}
-.dshp-upd-state.is-new{color:var(--dshp-accent);font-weight:600}
-.dshp-upd-btn{height:26px;padding:0 11px;font-size:12px}
-.dshp-upd-hint{margin:8px 0 0;font:400 11.5px/1.6 var(--dshp-sans);color:var(--dshp-faint)}
 .dshp-repo-note{margin:0 0 12px;font:400 12px/1.6 var(--dshp-sans);color:var(--dshp-mute)}
 .dshp-repo-fb{margin:0 0 12px;padding:10px 12px;border:1px solid var(--dshp-line);border-left:3px solid var(--dshp-accent);border-radius:8px;background:var(--dshp-fill)}
 .dshp-repo-fb-title{display:block;margin:0 0 4px;font:600 12.5px/1.5 var(--dshp-sans);color:var(--dshp-ink)}
@@ -3334,7 +3325,6 @@ function viewItems(t) {
     ["overview", t("view.overview")],
     ["patches", t("view.patches")],
     ["inject", t("view.inject")],
-    ["update", t("view.update")],
   ];
 }
 
@@ -3460,348 +3450,14 @@ function HostStatusCard(props) {
   );
 }
 
-/* ══ 更新页 ══════════════════════════════════════════════════════════════
-   独立视图：版本检测 + 文件级更新。
-
-   - 检查：拉远程清单，比对本地哈希，列出要改的文件
-   - 更新：只下载变化的文件，写前备份，失败回滚
-   - 连不上：给出去仓库的入口，不卡住用户
-   ══════════════════════════════════════════════════════════════════════ */
-/* 新版本弹窗。
-   三个出口：
-     立即更新   → 跳到更新页并触发检查
-     下次再说   → 关掉，下次启动还会弹
-     不接收提示 → promptMode=off，只关弹窗，更新页照常可用 */
-function UpdatePrompt({ info, onClose, onGoUpdate, onNever }) {
-  const t = useT();
-  if (!info) return null;
-
-  return h("div", { className: "dshp-modal-bg", role: "dialog", "aria-modal": "true" },
-    h("div", { className: "dshp-modal dshp-upd-modal" },
-      h("div", { className: "dshp-modal-head" },
-        h("b", null, t("upd.popTitle")),
-      ),
-      h("div", { className: "dshp-modal-body" },
-        h("p", { className: "dshp-upd-popbody" }, t("upd.popBody")
-          .replace("{v}", info.latest || "")
-          .replace("{cur}", info.current || "")),
-        h("p", { className: "dshp-upd-pophint" }, t("upd.popNote")),
-      ),
-      h("div", { className: "dshp-modal-ops dshp-upd-popops" },
-        h("button", {
-          type: "button",
-          className: "dshp-btn is-primary",
-          onClick: onGoUpdate,
-        }, t("upd.popNow")),
-        h("button", {
-          type: "button",
-          className: "dshp-btn",
-          onClick: onClose,
-        }, t("upd.popLater")),
-        h("button", {
-          type: "button",
-          className: "dshp-btn dshp-upd-never",
-          onClick: onNever,
-        }, t("upd.popNever")),
-      ),
-    ),
-  );
-}
-
-function UpdateView() {
-  const t = useT();
-  const tRef = useRef(t);
-  tRef.current = t;
-
-  const [phase, setPhase] = useState("idle");   /* idle | checking | ready | applying | done */
-  const [plan, setPlan] = useState(null);
-  const [err, setErr] = useState("");
-  const [result, setResult] = useState(null);
-  const [ver, setVer] = useState({ current: "", latest: "", hasUpdate: false, url: "" });
-  /* 弹窗开关：'on' | 'off'。只管弹窗，不影响检测与更新。 */
-  const [promptMode, setPromptMode] = useState("on");
-  const [prefSaved, setPrefSaved] = useState(false);
-
-  /* 打开页面时读一次缓存，不发网络 */
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const d = await apiJson("/ys-pojia/update");
-                if (d.settings && d.settings.promptMode) setPromptMode(d.settings.promptMode);
-        if (!alive || !d || !d.ok) return;
-        setVer({
-          current: d.current || "",
-          latest: d.latest || "",
-          hasUpdate: Boolean(d.hasUpdate),
-          url: d.url || "",
-        });
-      } catch { /* 没缓存就留空 */ }
-    })();
-    return () => { alive = false; };
-  }, []);
-
-  /* 保存弹窗开关。立刻生效，不需要重启。 */
-  const savePref = async (mode) => {
-    setPromptMode(mode);
-    try {
-      await apiJson("/ys-pojia/update/setting", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ promptMode: mode }),
-      });
-      setPrefSaved(true);
-      setTimeout(() => setPrefSaved(false), 2000);
-    } catch { /* 静默 */ }
-  };
-
-  const check = async () => {
-    setPhase("checking");
-    setErr("");
-    setResult(null);
-    try {
-      const d = await apiJson("/ys-pojia/update/plan", { method: "POST" });
-      if (!d || !d.ok) {
-        setErr((d && d.reason) || "未知错误");
-        setPhase("idle");
-        return;
-      }
-      setPlan(d);
-      setVer({
-        current: d.current || "",
-        latest: d.remote || "",
-        hasUpdate: Boolean(d.hasUpdate),
-        url: "https://github.com/yushang657/DSH-YS-pojia/releases/tag/v" + (d.remote || ""),
-      });
-      setPhase("ready");
-    } catch (e) {
-      setErr(String((e && e.message) || e));
-      setPhase("idle");
-    }
-  };
-
-  const apply = async () => {
-    if (!plan) return;
-    setPhase("applying");
-    setErr("");
-    try {
-      const d = await apiJson("/ys-pojia/update/apply", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({}),
-      });
-      if (!d || !d.ok) {
-        setErr((d && (d.error || d.reason)) || "未知错误");
-        setPhase("ready");
-        return;
-      }
-      setResult(d);
-      setPhase("done");
-    } catch (e) {
-      setErr(String((e && e.message) || e));
-      setPhase("ready");
-    }
-  };
-
-  const busy = phase === "checking" || phase === "applying";
-  const pend = plan ? (plan.added || []).length + (plan.changed || []).length : 0;
-
-  return h("div", { className: "dshp-updpage" },
-    /* ── 版本状态 ── */
-    h("div", { className: "dshp-upd-ver" },
-      h("div", { className: "dshp-upd-vrow" },
-        h("span", { className: "dshp-upd-vlabel" }, t("upd.current")),
-        h("code", { className: "dshp-upd-vnum" }, ver.current || "—"),
-        h("span", { className: "dshp-upd-varrow" }, "→"),
-        h("span", { className: "dshp-upd-vlabel" }, t("upd.remote")),
-        h("code", { className: "dshp-upd-vnum" + (ver.hasUpdate ? " is-new" : "") }, ver.latest || "—"),
-      ),
-      h("p", { className: "dshp-upd-desc" }, t("upd.desc")),
-      h("div", { className: "dshp-upd-ops" },
-        h("button", {
-          type: "button",
-          className: "dshp-btn is-primary",
-          disabled: busy,
-          onClick: check,
-        }, phase === "checking" ? t("upd.checking") : t("upd.check")),
-        ver.hasUpdate && ver.url
-          ? h("button", {
-              type: "button",
-              className: "dshp-btn",
-              onClick: () => openRepoLink(ver.url),
-            }, t("upd.goto"))
-          : null,
-      ),
-    ),
-
-    // 弹窗提示设置：只控制弹窗，不影响检测与更新按钮
-    h("div", { className: "dshp-upd-pref" },
-      h("b", { className: "dshp-upd-pref-title" }, t("upd.prefTitle")),
-      h("div", { className: "dshp-upd-pref-opts" },
-        h("label", { className: "dshp-upd-radio" },
-          h("input", { type: "radio", name: "ysPojiaPromptMode",
-            checked: promptMode === "on", onChange: () => savePref("on") }),
-          h("span", null, t("upd.prefOn")),
-        ),
-        h("label", { className: "dshp-upd-radio" },
-          h("input", { type: "radio", name: "ysPojiaPromptMode",
-            checked: promptMode === "off", onChange: () => savePref("off") }),
-          h("span", null, t("upd.prefOff")),
-        ),
-      ),
-      h("p", { className: "dshp-upd-hintline" }, t("upd.prefHint")),
-      prefSaved ? h("span", { className: "dshp-upd-saved" }, t("upd.prefSaved")) : null,
-    ),
-
-    /* ── 错误 ── */
-    err
-      ? h("div", { className: "dshp-upd-err" },
-          h("b", null, t("upd.checkFail").replace("{reason}", "")),
-          h("p", null, err),
-          h("p", { className: "dshp-upd-hintline" }, t("upd.manualHint")),
-        )
-      : null,
-
-    /* ── 文件差异 ── */
-    plan && phase !== "done"
-      ? h("div", { className: "dshp-upd-files" },
-          h("div", { className: "dshp-upd-fhead" },
-            h("b", null, t("upd.filesTitle")),
-            h("span", null, t("upd.filesSummary")
-              .replace("{total}", String(plan.total || 0))
-              .replace("{changed}", String(pend))),
-          ),
-
-          (plan.added || []).length
-            ? h("div", { className: "dshp-upd-group" },
-                h("em", { className: "dshp-upd-gtag is-add" }, t("upd.added") + " " + plan.added.length),
-                ...plan.added.map((f) => h("code", { key: f, className: "dshp-upd-f" }, f)),
-              )
-            : null,
-
-          (plan.changed || []).length
-            ? h("div", { className: "dshp-upd-group" },
-                h("em", { className: "dshp-upd-gtag is-mod" }, t("upd.changed") + " " + plan.changed.length),
-                ...plan.changed.map((f) => h("code", { key: f, className: "dshp-upd-f" }, f)),
-              )
-            : null,
-
-          (plan.removed || []).length
-            ? h("div", { className: "dshp-upd-group" },
-                h("em", { className: "dshp-upd-gtag is-del" }, t("upd.removed") + " " + plan.removed.length),
-                ...plan.removed.slice(0, 20).map((f) => h("code", { key: f, className: "dshp-upd-f" }, f)),
-              )
-            : null,
-
-          pend === 0
-            ? h("p", { className: "dshp-upd-ok" }, t("upd.noChange"))
-            : h("button", {
-                type: "button",
-                className: "dshp-btn is-primary dshp-upd-apply",
-                disabled: busy,
-                onClick: apply,
-              }, phase === "applying" ? t("upd.applying") : t("upd.apply").replace("{n}", String(pend))),
-
-          h("p", { className: "dshp-upd-hintline" }, t("upd.danger")),
-        )
-      : null,
-
-    /* ── 完成 ── */
-    phase === "done" && result
-      ? h("div", { className: "dshp-upd-done" },
-          h("b", null, t("upd.applyOk").replace("{n}", String(result.count || 0))),
-          result.needRestart
-            ? h("p", { className: "dshp-upd-restart" }, t("upd.needRestart"))
-            : null,
-          result.backupDir
-            ? h("p", { className: "dshp-upd-hintline" }, t("upd.backup").replace("{dir}", result.backupDir))
-            : null,
-          (result.written || []).length
-            ? h("div", { className: "dshp-upd-group" },
-                ...result.written.map((f) => h("code", { key: f, className: "dshp-upd-f is-ok" }, f)),
-              )
-            : null,
-        )
-      : null,
-
-    /* ── 仓库卡片（与首页一致）── */
-    h("div", { className: "dshp-repo" },
-      h("div", { className: "dshp-repo-head" },
-        h("span", { className: "dshp-repo-icon", "aria-hidden": "true" }, "★"),
-        h("div", { className: "dshp-repo-title" },
-          h("b", null, t("repo.title")),
-          h("em", null, t("repo.sub")),
-        ),
-      ),
-      h("p", { className: "dshp-repo-ask" }, t("repo.ask")),
-      h("p", { className: "dshp-repo-note" }, t("repo.note")),
-      h("div", { className: "dshp-repo-fb" },
-        h("b", { className: "dshp-repo-fb-title" }, t("repo.fbTitle")),
-        h("p", { className: "dshp-repo-fb-body" }, t("repo.fbBody")),
-      ),
-      h("div", { className: "dshp-repo-ops" },
-        h("button", {
-          type: "button",
-          className: "dshp-btn is-primary dshp-repo-btn",
-          onClick: () => openRepoLink(REPO_URL),
-        }, t("repo.btn")),
-        h("button", {
-          type: "button",
-          className: "dshp-btn dshp-repo-btn",
-          onClick: () => openRepoLink(RELEASES_URL),
-        }, t("upd.goto")),
-      ),
-    ),
-  );
-}
-
 function PurgifySection() {
 			useEffect(() => () => stopRestartPolling(), []);
-
-			/* 启动检测：面板加载时问一次后端要不要弹窗。
-			 * 后端决定 promptMode 与是否有新版，前端只管弹不弹。 */
-			useEffect(() => {
-			  let alive = true;
-			  (async () => {
-			    try {
-			      const d = await apiJson("/ys-pojia/update/boot", { method: "POST" });
-			      if (!alive || !d || !d.ok) return;
-			      if (d.shouldPrompt && d.latest) {
-			        setUpdatePrompt({ current: d.current || "", latest: d.latest, url: d.url || "" });
-			      }
-			    } catch { /* 检测失败静默，不打扰用户 */ }
-			  })();
-			  return () => { alive = false; };
-			}, []);
-
-			/* 弹窗：立即更新 → 跳更新页；不接收 → 关弹窗并写 promptMode=off */
-			const promptGoUpdate = useCallback(() => {
-			  setUpdatePrompt(null);
-			  setView("update");
-			}, []);
-
-			const promptNever = useCallback(async () => {
-			  setUpdatePrompt(null);
-			  try {
-			    await apiJson("/ys-pojia/update/setting", {
-			      method: "POST",
-			      headers: { "content-type": "application/json" },
-			      body: JSON.stringify({ promptMode: "off" }),
-			    });
-			  } catch { /* 静默 */ }
-			}, []);
-
 			const [view, setView] = useState("overview");
-			/* 新版本弹窗：{ current, latest, url } 或 null */
-			const [updatePrompt, setUpdatePrompt] = useState(null);
 
 			/* 仓库链接复制状态：'idle' | 'ok' | 'fail' */
 			const [repoCopy, setRepoCopy] = useState("idle");
 			/* 外部链接打开失败时的提示：'' | 文案 */
 			const [repoOpenMsg, setRepoOpenMsg] = useState("");
-			/* 版本更新：hasUpdate/text/url 由后端返回，这里只做展示 */
-			const [updState, setUpdState] = useState({ text: "", hasUpdate: false, url: "" });
-			const [updBusy, setUpdBusy] = useState(false);
 			const t = useT();
 			const tRef = useRef(t);
 			tRef.current = t;
@@ -3817,6 +3473,9 @@ function PurgifySection() {
 			const [askUninstall, setAskUninstall] = useState(false);
 			const [uninstallBusy, setUninstallBusy] = useState(false);
 			const [notice, setNotice] = useState({ kind: "idle", text: "" });
+			const [updateInfo, setUpdateInfo] = useState(null);
+			const [channel, setChannel] = useState("stable");
+			const [pick, setPick] = useState({ stable: "", beta: "" });
 			const actionTicket = useRef(0);
 			const overrideRef = useRef("");
 			const defaultOverrideRef = useRef("");
@@ -3850,52 +3509,6 @@ function PurgifySection() {
 				setRepoOpenMsg(t("repo.openFailed"));
 				window.setTimeout(() => setRepoOpenMsg(""), 4000);
 			};
-
-			/* 检查更新：先读缓存（不联网），用户点按钮才打 GitHub API。 */
-			const checkUpdateNow = async () => {
-			  if (updBusy) return;
-			  setUpdBusy(true);
-			  try {
-			    const d = await apiJson("/ys-pojia/update/check", {
-			      method: "POST",
-			      headers: { "content-type": "application/json" },
-			      body: JSON.stringify({ force: true }),
-			    });
-			    if (!d || !d.ok) {
-			      setUpdState({ text: t("update.fail").replace("{reason}", (d && d.reason) || "未知"), hasUpdate: false, url: "" });
-			      return;
-			    }
-			    if (d.hasUpdate) {
-			      setUpdState({ text: t("update.available").replace("{v}", d.latest), hasUpdate: true, url: d.url || "" });
-			    } else {
-			      setUpdState({ text: t("update.latest").replace("{v}", d.latest), hasUpdate: false, url: "" });
-			    }
-			  } catch (e) {
-			    setUpdState({ text: t("update.fail").replace("{reason}", String((e && e.message) || e)), hasUpdate: false, url: "" });
-			  } finally {
-			    setUpdBusy(false);
-			  }
-			};
-
-			/* 面板打开时读一次缓存（不发网络），有缓存就显示上次结果。 */
-			useEffect(() => {
-			  let alive = true;
-			  (async () => {
-			    try {
-			      const d = await apiJson("/ys-pojia/update");
-			      if (!alive || !d) return;
-			      if (d.ok && d.latest) {
-			        if (d.hasUpdate) {
-			          setUpdState({ text: tRef.current("update.available").replace("{v}", d.latest), hasUpdate: true, url: d.url || "" });
-			        } else {
-			          const min = d.checkedAt ? Math.max(0, Math.round((Date.now() - new Date(d.checkedAt).getTime()) / 60000)) : 0;
-			          setUpdState({ text: tRef.current("update.cached").replace("{min}", String(min)) + " · " + tRef.current("update.latest").replace("{v}", d.latest), hasUpdate: false, url: "" });
-			        }
-			      }
-			    } catch { /* 没缓存就留空 */ }
-			  })();
-			  return () => { alive = false; };
-			}, []);
 
 			/**
 			 * 复制仓库地址。
@@ -4310,15 +3923,6 @@ function PurgifySection() {
 					noticeNode(notice),
 				),
 				),
-				/* 新版本弹窗：有 shouldPrompt 时才渲染 */
-				updatePrompt
-				  ? h(UpdatePrompt, {
-				      info: updatePrompt,
-				      onClose: () => setUpdatePrompt(null),
-				      onGoUpdate: promptGoUpdate,
-				      onNever: promptNever,
-				    })
-				  : null,
 				h(ApplyFlow, { progress: s && s.apply_progress, busy: patchBusy || uninstallBusy, t: t }),
 				h("div", { className: "dshp-bar", "aria-hidden": "true" }, h("i", { style: { transform: "scaleX(" + (pct / 100) + ")" } })),
 				view === "overview" ? h(react.Fragment, null,
@@ -4362,33 +3966,6 @@ function PurgifySection() {
 				    ),
 				    h("p", { className: "dshp-repo-ask" }, t("repo.ask")),
 				    h("p", { className: "dshp-repo-note" }, t("repo.note")),
-
-				    /* ── 版本更新 ──
-				     * 云端源是 GitHub Releases，不需要服务器。
-				     * 默认不联网：用户没点过按钮之前一次请求都不发。 */
-				    h("div", { className: "dshp-upd" },
-				      h("div", { className: "dshp-upd-row" },
-				        h("b", { className: "dshp-upd-label" }, t("update.title")),
-				        h("span", {
-				          className: "dshp-upd-state" + (updState.hasUpdate ? " is-new" : ""),
-				        }, updState.text),
-				        h("button", {
-				          type: "button",
-				          className: "dshp-btn dshp-upd-btn" + (updBusy ? " busy" : ""),
-				          disabled: updBusy,
-				          onClick: checkUpdateNow,
-				        }, updBusy ? t("update.checking") : t("update.check")),
-				        updState.hasUpdate && updState.url
-				          ? h("button", {
-				              type: "button",
-				              className: "dshp-btn dshp-upd-btn",
-				              onClick: () => openRepoLink(updState.url),
-				            }, t("update.goto"))
-				          : null,
-				      ),
-				      h("p", { className: "dshp-upd-hint" }, t("update.hint")),
-				    ),
-
 				    /* ── 反馈入口：新功能建议 / 现有功能优化 / Bug 反馈，统一走 Issue ── */
 				    h("div", { className: "dshp-repo-fb" },
 				      h("b", { className: "dshp-repo-fb-title" }, t("repo.fbTitle")),
@@ -4446,8 +4023,7 @@ function PurgifySection() {
 				promptBoxEmpty(override) ? h("p", {
 					className: "dshp-hint",
 					style: { margin: "8px 0 0", color: "var(--dshp-danger, #c44)", fontSize: 12 },
-				}, t("need.prompt")) : view === "update" ? h(UpdateView, null)
-				: null,
+				}, t("need.prompt")) : null,
 			) : null,
 				askUninstall ? h("div", {
 					className: "dshp-modal-bg",
@@ -5916,10 +5492,13 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 
 		/* __DSH_PURGE_DRILL_BEGIN__ */
 		// 内嵌演练台（源码在 lib/hacker，已并进本插件）
-		const __dshPurgeDrill = (() => {
+		const __ysPojiaDrill = (() => {
 			var module = { exports: {} };
 			var exports = module.exports;
 
+    var module = { exports: {} }
+    var exports = module.exports
+    Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' })
 
     const React = require('react')
     const h = React.createElement
@@ -7994,7 +7573,7 @@ body[data-ds-dark-theme] .rt-scope-testing,.dshp-dock[data-theme="dusk"] .rt-sco
           if (st.code === 'boundary') {
             const selfOnly = (st.tunnels_self_only || []).length
             body.push(h('div', { key: 'tt', className: 'rt-ap-sub' },
-              '跨越靶标边界的通道 · ' + st.tunnels.length + ' 条' + (selfOnly ? '（另有 ' + selfOnly + ' 条只在自己 VPS/自建服务器上，不算突破）' : '')))
+              '跨越靶标边界的通道 · ' + st.tunnels.length + t("unit.items") + (selfOnly ? '（另有 ' + selfOnly + ' 条只在自己 VPS/自建服务器上，不算突破）' : '')))
             if (selfOnly && st.tunnels.length === 0) {
               body.push(h('div', { key: 'tw', className: 'rt-ap-none' },
                 '⚠️ 现有的通道都在自己的服务器上，没有碰到目标 —— 不计边界突破。需要目标侧发起的通道（反弹 shell 到我这 / 目标上跑 frp 客户端 / 经目标 WebShell 的 suo5）。'))
@@ -8053,7 +7632,7 @@ body[data-ds-dark-theme] .rt-scope-testing,.dshp-dock[data-theme="dusk"] .rt-sco
           h('div', { className: 'rt-hcol-body' },
             st.code === 'boundary'
               ? h('div', null,
-                  h('div', { className: 'rt-hcol-hit' }, h('span', { className: 'rt-hcol-pts' }, '+' + st.points), h('span', { className: 'rt-hcol-name' }, '隧道 ' + st.tunnels.length + ' 条')),
+                  h('div', { className: 'rt-hcol-hit' }, h('span', { className: 'rt-hcol-pts' }, '+' + st.points), h('span', { className: 'rt-hcol-name' }, '隧道 ' + st.tunnels.length + t("unit.items"))),
                   st.tunnels.slice(0, 3).map((t) => h('div', { key: 't' + t.id, className: 'rt-hcol-sub' }, '▸ ' + (t.kind || '') + ' ' + (t.listen || ''))))
               : st.code === 'recon'
                 ? h('div', null,
@@ -8562,7 +8141,7 @@ body[data-ds-dark-theme] .rt-scope-testing,.dshp-dock[data-theme="dusk"] .rt-sco
       return h('div', { className: 'rt-main' },
         h('div', { className: 'rt-toolbar' },
           h('span', { style: { fontWeight: 600 } }, '知识库 · POC / EXP'),
-          h('span', { className: 'rt-tag' }, stats.total + ' 条'),
+          h('span', { className: 'rt-tag' }, stats.total + t("unit.items")),
           h('span', { className: 'rt-tag rt-tag-live' }, '已验证 ' + stats.verified),
           h('span', { className: 'rt-tag' }, '累计复用 ' + (stats.reused || 0)),
           (stats.uncategorized || 0) > 0 && (stats.uncategorized || 0) !== stats.total
@@ -8641,7 +8220,7 @@ body[data-ds-dark-theme] .rt-scope-testing,.dshp-dock[data-theme="dusk"] .rt-sco
               const list = buckets.get(code)
               out.push(h('div', { key: 'g' + code, className: 'rt-kb-cat' },
                 h('span', { className: 'rt-kb-cat-name' }, POC_CAT_NAME[code] || code),
-                h('span', { className: 'rt-tag' }, list.length + ' 条'),
+                h('span', { className: 'rt-tag' }, list.length + t("unit.items")),
                 h('span', { className: 'rt-tag rt-tag-live' }, '已验证 ' + list.filter((x) => x.verified === 1).length),
                 h('span', { className: 'rt-spacer' }),
                 h('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-secondary)' } },
@@ -9929,7 +9508,7 @@ body[data-ds-dark-theme] .rt-scope-testing,.dshp-dock[data-theme="dusk"] .rt-sco
     }
 
     function Panel(props) {
-      /* embedded：嵌在 ys-pojia 外层 dock 里时，不再自带收起/全面浏览/拖拽条，避免与外层按钮重叠 */
+      /* embedded：嵌在 本插件 外层 dock 里时，不再自带收起/全面浏览/拖拽条，避免与外层按钮重叠 */
       const embedded = !!(props && props.embedded)
       const st = useUI()
       const [engagements, setEngagements] = React.useState([])
@@ -10388,15 +9967,7 @@ body[data-ds-dark-theme] .rt-scope-testing,.dshp-dock[data-theme="dusk"] .rt-sco
 			if (dockBus.open) setDock({ open: false, authOpen: false, pending: "tab" });
 			else openDockClean();
 		}
-		/* 延到下一个宏任务再同步演练台授权。
-		 * 原本在模块顶层同步执行 —— 那时 React 还没挂载、连接还没建立，
-		 * 一旦 fetch 抛错会冒泡出 factory，整个模块加载失败、前端入口消失。
-		 * 现在推迟到模块加载完成之后，并吞掉异常。 */
-		try {
-			(window.requestAnimationFrame || window.setTimeout)(() => {
-				try { syncDrillGrant(); } catch { /* 静默 */ }
-			});
-		} catch { /* window 不可用 */ }
+		syncDrillGrant();
 
 		const DOCK_GEOM_KEY = "ys-pojia-dock-geom-v4";
 		/* 默认停在右上，底边留在输入框上面。拖动之后停在用户松开的位置，只保证不拖出窗口。 */
@@ -11954,10 +11525,10 @@ body[data-ds-dark-theme] .rt-scope-testing,.dshp-dock[data-theme="dusk"] .rt-sco
 					uiTag.textContent = PURGE_CSS;
 					document.head.append(uiTag);
 				}
-				if (!__dshPurgeDrill || !__dshPurgeDrill.CSS) return undefined;
+				if (!__ysPojiaDrill || !__ysPojiaDrill.CSS) return undefined;
 				const styleTag = document.createElement("style");
 				styleTag.setAttribute("data-ys-pojia-drill", "1");
-				styleTag.textContent = __dshPurgeDrill.CSS;
+				styleTag.textContent = __ysPojiaDrill.CSS;
 				document.head.append(styleTag);
 				const widthTag = document.createElement("style");
 				widthTag.setAttribute("data-ys-pojia-dock-w", "1");

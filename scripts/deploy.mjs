@@ -114,25 +114,7 @@ function copyDir(src, dst) {
         fs.mkdirSync(dp, { recursive: true });
         walk(sp, dp);
       } else if (e.isFile()) {
-        /* Windows 上宿主进程可能正读着这个文件，copyFileSync 会抛 EPERM。
-           重试三次，每次间隔 120ms —— 文件锁通常是瞬时的。 */
-        let lastErr = null;
-        /* 目标可能是只读（上一次部署或宿主设的），Node 的 copyFileSync 不会自动清，
-           会抛 EPERM。复制前先 chmod 去掉只读。 */
-        try { fs.chmodSync(dp, 0o666); } catch { /* 不存在就跳过 */ }
-        for (let attempt = 0; attempt < 3; attempt += 1) {
-          try { fs.copyFileSync(sp, dp); lastErr = null; break; }
-          catch (err) {
-            lastErr = err;
-            if (err && err.code === "EPERM" && attempt < 2) {
-              const until = Date.now() + 120;
-              while (Date.now() < until) { /* 忙等，同步函数里没别的办法 */ }
-              continue;
-            }
-            throw err;
-          }
-        }
-        if (lastErr) throw lastErr;
+        fs.copyFileSync(sp, dp);
         copied += 1;
       }
     }
