@@ -3,7 +3,7 @@
 **破甲插件（DSH 平台）** —— 让大模型按需解除拒答。
 
 [English](README.md) · **简体中文**
-> **[在线宣传页 →](https://YSN.github.io/ys-pojia/)** · 交互式介绍、三层机制图解、三档对比、短板说明
+> **[在线宣传页 →](https://yushang657.github.io/DSH-YS-pojia/)** · 交互式介绍、三层机制图解、三档对比、短板说明
 
 
 > 破甲 = prompt breach testing：系统化测出模型在哪些能力类别上会拒答、拒到什么程度。
@@ -294,7 +294,7 @@ GPT 的降级手法有三种可识别特征：先声明「我不能描写…」�
 
 当前 **v1.5.3**。完整变更记录、每版的技术细节、验证数据都在宣传页 —— 那里比 README 适合放长文。
 
-**[→ 完整变更记录](https://YSN.github.io/ys-pojia/#changelog)**
+**[→ 完整变更记录](https://yushang657.github.io/DSH-YS-pojia/docs/changelog.html)**
 
 ### 近期版本
 

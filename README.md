@@ -3,7 +3,7 @@
 **破甲 plugin for DSH (DeepSeek Harness)** — make LLMs drop refusals on demand.
 
 **English** · [简体中文](README.zh-CN.md)
-> **[Landing page →](https://YSN.github.io/ys-pojia/)** · interactive intro, layer diagrams, tier comparison, known weaknesses
+> **[Landing page →](https://yushang657.github.io/DSH-YS-pojia/)** · interactive intro, layer diagrams, tier comparison, known weaknesses
 
 
 > 破甲 (pò jiǎ, "armor-breaking") is the Chinese term for prompt-layer breach testing: systematically finding what a model will and will not refuse, and how far it goes.
@@ -295,7 +295,7 @@ A category-blind "average 70" is a false conclusion. The same gpt-6.1-sol scores
 
 Current: **v1.5.3**. The full record - per-release technical detail and verification data - lives on the landing page, which suits long-form better than a README.
 
-**[→ Full changelog](https://YSN.github.io/ys-pojia/#changelog)**
+**[→ Full changelog](https://yushang657.github.io/DSH-YS-pojia/docs/changelog.html)**
 
 ### Recent releases
 
