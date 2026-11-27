@@ -20,6 +20,15 @@
 
 ---
 
+
+### QQ 交流群
+
+有问题、想交流用法或反馈 Bug，欢迎加入 QQ 群「爬虫、破甲交流群」：
+
+[![QQ 交流群](qq-group.png)](https://qm.qq.com/q/ccMOQAFzTG)
+
+扫码或[点击链接加入群聊](https://qm.qq.com/q/ccMOQAFzTG) ↗
+
 ## How the breach works: three layers stacked, not a prompt tool
 
 Most breach plugins only rewrite the prompt. The moment the model says "I'm sorry", the thousands of characters of rules above it are void. This project acts on **three layers at once**, so there is no point at which the model can refuse.
